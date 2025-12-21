@@ -63,16 +63,16 @@ export function CustomerHeader({ title }: { title: string }) {
       {/* Header */}
       <header className="sticky top-48 z-50 bg-background border-b px-4 py-3 safe-area-inset-top">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-2 min-w-0">
             {logo && (
               <div className="h-8 w-8 rounded-md overflow-hidden flex-shrink-0">
                 <img src={logo} alt="Logo" className="h-full w-full object-cover" />
               </div>
             )}
-            <h1 className="text-xl font-semibold">{title}</h1>
+            <h1 className="text-xl font-semibold truncate">{title}</h1>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
           <Link href="/liked">
             <Button variant="ghost" size="icon" className="relative">
               <Heart className="h-5 w-5" />
