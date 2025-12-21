@@ -61,7 +61,7 @@ export function CustomerHeader({ title }: { title: string }) {
       </div>
 
       {/* Header */}
-      <header className="sticky top-48 z-50 bg-background border-b px-4 py-3 safe-area-inset-top">
+      <header className="sticky top-[192px] z-50 bg-background border-b px-4 py-3 safe-area-inset-top">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             {logo && (
