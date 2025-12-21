@@ -134,7 +134,7 @@ export default function CatalogPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background pb-24">
       <CustomerHeader title="Katalog" />
 
       {/* Search Bar */}

@@ -62,17 +62,19 @@ export function CustomerHeader({ title }: { title: string }) {
 
       {/* Header */}
       <header className="sticky top-[192px] z-50 bg-background border-b px-4 py-3 safe-area-inset-top">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            {logo && (
-              <div className="h-8 w-8 rounded-md overflow-hidden flex-shrink-0">
-                <img src={logo} alt="Logo" className="h-full w-full object-cover" />
-              </div>
-            )}
-            <h1 className="text-xl font-semibold truncate">{title}</h1>
-          </div>
+        <div className="flex items-center justify-start gap-3">
+          <h1 className="text-xl font-semibold">{title}</h1>
+        </div>
+      </header>
 
-          <div className="flex items-center gap-1 flex-shrink-0">
+      {/* Bottom Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t px-4 py-3 flex items-center justify-between gap-2 safe-area-inset-bottom">
+        <div className="flex items-center gap-1 flex-1">
+          {logo && (
+            <div className="h-8 w-8 rounded-md overflow-hidden flex-shrink-0">
+              <img src={logo} alt="Logo" className="h-full w-full object-cover" />
+            </div>
+          )}
           <Link href="/liked">
             <Button variant="ghost" size="icon" className="relative">
               <Heart className="h-5 w-5" />
@@ -157,7 +159,6 @@ export function CustomerHeader({ title }: { title: string }) {
           )}
         </div>
       </div>
-    </header>
     </>
   );
 }
