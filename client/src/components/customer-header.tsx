@@ -72,7 +72,7 @@ export function CustomerHeader({ title }: { title: string }) {
             <h1 className="text-xl font-semibold truncate">{title}</h1>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
           <Link href="/liked">
             <Button variant="ghost" size="icon" className="relative">
               <Heart className="h-5 w-5" />
