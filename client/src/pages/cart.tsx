@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { useCustomerAuth } from "@/hooks/use-customer-auth";
+import { useCustomerAuthRequired } from "@/hooks/use-customer-auth-required";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useTelegram } from "@/lib/telegram";
 import { CustomerHeader } from "@/components/customer-header";
@@ -129,7 +129,7 @@ export default function CartPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { hapticFeedback, showBackButton, hideBackButton, onBackButtonClick } = useTelegram();
-  const { isLoading: authLoading } = useCustomerAuth();
+  const { isLoading: authLoading } = useCustomerAuthRequired();
 
   const { data: cartItems, isLoading } = useQuery<CartItemWithProduct[]>({
     queryKey: ["/api/cart"],

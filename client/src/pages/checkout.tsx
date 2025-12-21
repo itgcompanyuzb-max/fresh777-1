@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useTelegramBot } from "@/hooks/use-telegram-bot";
-import { useCustomerAuth } from "@/hooks/use-customer-auth";
+import { useCustomerAuthRequired } from "@/hooks/use-customer-auth-required";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useTelegram } from "@/lib/telegram";
 import { CustomerHeader } from "@/components/customer-header";
@@ -65,7 +65,7 @@ export default function CheckoutPage() {
   const [deliverySettings, setDeliverySettings] = useState<DeliverySettings>(DEFAULT_DELIVERY_SETTINGS);
   const { hapticFeedback, showBackButton, hideBackButton, onBackButtonClick, user } = useTelegram();
   const { notifyOrderStatus, telegramUser } = useTelegramBot();
-  const { customer, isLoading: authLoading } = useCustomerAuth();
+  const { customer, isLoading: authLoading } = useCustomerAuthRequired();
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),

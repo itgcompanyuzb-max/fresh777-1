@@ -1,21 +1,15 @@
-import { useEffect } from "react";
-import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Customer } from "@shared/schema";
 
+/**
+ * Hook that fetches the current customer info without redirecting.
+ * Use this for pages that should be accessible to non-authenticated users
+ * (like catalog, product details, etc).
+ */
 export function useCustomerAuth() {
-  const [, navigate] = useLocation();
-  
   const { data: customer, isLoading } = useQuery<Customer>({
     queryKey: ["/api/customers/me"],
   });
-
-  useEffect(() => {
-    if (!isLoading && (!customer || !customer.phoneNumber)) {
-      // User not registered, redirect to signup
-      navigate("/signup");
-    }
-  }, [customer, isLoading, navigate]);
 
   return { customer, isLoading };
 }

@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTelegram } from '@/lib/telegram';
 import { useToast } from '@/hooks/use-toast';
-import { useCustomerAuth } from '@/hooks/use-customer-auth';
+import { useCustomerAuthRequired } from '@/hooks/use-customer-auth-required';
 import { CustomerHeader } from '@/components/customer-header';
 import { Send } from 'lucide-react';
 
 export default function ChatPage() {
-  const { customer, isLoading: authLoading } = useCustomerAuth();
+  const { customer, isLoading: authLoading } = useCustomerAuthRequired();
   const [text, setText] = useState('');
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
