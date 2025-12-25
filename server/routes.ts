@@ -5,6 +5,7 @@ import { telegramBot, sendMessageToUser } from "./telegram-bot";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import twilio from "twilio";
 import { 
   insertCategorySchema, 
   insertProductSchema, 
@@ -140,6 +141,114 @@ export async function registerRoutes(
     }
     return product;
   };
+
+  // ==================== TWILIO SMS VERIFICATION ====================
+
+  // Initialize Twilio client
+  const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
+  const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
+  const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
+  let twilioClient: any = null;
+  const isDemoDev = process.env.NODE_ENV === "development" && (!twilioAccountSid || twilioAccountSid.includes("AC7e5f"));
+  
+  if (twilioAccountSid && twilioAuthToken && !twilioAccountSid.includes("AC7e5f")) {
+    twilioClient = twilio(twilioAccountSid, twilioAuthToken);
+    console.log('✅ Twilio SMS verification enabled');
+  } else if (isDemoDev) {
+    console.log('📝 Running in DEMO mode - OTP codes will be logged to console');
+  } else {
+    console.warn('⚠️  Twilio credentials not configured');
+  }
+
+  // Store OTP codes temporarily (in production, use Redis or database)
+  const otpStore = new Map<string, { code: string; expiresAt: number }>();
+
+  // Send OTP to phone number
+  app.post("/api/auth/send-otp", async (req: Request, res: Response) => {
+    try {
+      const { phoneNumber } = req.body;
+
+      if (!phoneNumber) {
+        return res.status(400).json({ error: "Phone number required" });
+      }
+
+      // Generate random 6-digit OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Store OTP with 10-minute expiration
+      const expiresAt = Date.now() + 10 * 60 * 1000;
+      otpStore.set(phoneNumber, { code: otp, expiresAt });
+
+      if (isDemoDev) {
+        // In demo mode, log the OTP to console
+        console.log(`
+╔════════════════════════════════════════╗
+║         📱 OTP CODE FOR TESTING         ║
+╠════════════════════════════════════════╣
+║ Phone: ${phoneNumber.padEnd(30)} ║
+║ Code:  ${otp.padEnd(30)} ║
+║ Valid: 10 minutes                      ║
+╚════════════════════════════════════════╝
+        `);
+        res.json({ success: true, message: "OTP sent successfully (check console)" });
+      } else if (twilioClient) {
+        // Send SMS via Twilio
+        try {
+          await twilioClient.messages.create({
+            body: `Sizning tasdiqlash kodi: ${otp}\n\nBu kodi 10 daqiqa davomida amal qiladi.`,
+            from: twilioPhoneNumber,
+            to: phoneNumber,
+          });
+
+          console.log(`✅ OTP sent to ${phoneNumber}`);
+          res.json({ success: true, message: "OTP sent successfully" });
+        } catch (twilioError: any) {
+          console.error("Twilio error:", twilioError);
+          return res.status(500).json({ error: "Failed to send SMS: " + twilioError.message });
+        }
+      } else {
+        return res.status(500).json({ error: "SMS service not available" });
+      }
+    } catch (error) {
+      console.error("Send OTP error:", error);
+      res.status(500).json({ error: "Failed to send OTP" });
+    }
+  });
+
+  // Verify OTP code
+  app.post("/api/auth/verify-otp", async (req: Request, res: Response) => {
+    try {
+      const { phoneNumber, code } = req.body;
+
+      if (!phoneNumber || !code) {
+        return res.status(400).json({ error: "Phone number and code required" });
+      }
+
+      const storedOtp = otpStore.get(phoneNumber);
+
+      if (!storedOtp) {
+        return res.status(400).json({ error: "OTP not found or expired" });
+      }
+
+      if (Date.now() > storedOtp.expiresAt) {
+        otpStore.delete(phoneNumber);
+        return res.status(400).json({ error: "OTP expired" });
+      }
+
+      if (storedOtp.code !== code) {
+        return res.status(400).json({ error: "Invalid OTP code" });
+      }
+
+      // OTP is valid - delete it from store
+      otpStore.delete(phoneNumber);
+
+      res.json({ success: true, message: "Phone number verified" });
+    } catch (error) {
+      console.error("Verify OTP error:", error);
+      res.status(500).json({ error: "Failed to verify OTP" });
+    }
+  });
   
   // ==================== CATEGORIES ====================
   
@@ -589,6 +698,14 @@ export async function registerRoutes(
         deliveryFee: deliveryFeeValue,
       });
 
+      console.log('✅ Order created from web app:', {
+        orderId: order.id,
+        customerId: customer.id,
+        total: totalPrice,
+        status: order.status,
+        deliveryAddress: orderData.deliveryAddress
+      });
+
       for (const item of items || []) {
         await storage.createOrderItem({
           orderId: order.id,
@@ -603,13 +720,14 @@ export async function registerRoutes(
       await storage.clearCart(customer.id);
 
       // Send Telegram notification if user has telegramId
-      if (customer.telegramId && telegramBot) {
+      const userTelegramId = customer.telegramId || telegramId;
+      if (userTelegramId && telegramBot) {
         try {
           // Get order items for notification
           const orderItems = await storage.getOrderItems(order.id);
           
           await telegramBot.notifyOrderCreated(
-            parseInt(customer.telegramId),
+            parseInt(userTelegramId),
             order.id.toString(),
             {
               total: totalPrice,
@@ -651,7 +769,12 @@ export async function registerRoutes(
         return res.json([]);
       }
       const items = await storage.getCartItems(customer.id);
-      res.json(items);
+      // Parse product images in cart items
+      const parsedItems = items.map(item => ({
+        ...item,
+        product: parseProductImages(item.product)
+      }));
+      res.json(parsedItems);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch cart" });
     }
@@ -852,7 +975,8 @@ export async function registerRoutes(
       const likes = await storage.getLikesByCustomer(customer.id);
       // join product details
       const products = await Promise.all(likes.map(async (l) => await storage.getProduct(l.productId)));
-      res.json(products.filter(Boolean));
+      const parsedProducts = products.filter(Boolean).map(parseProductImages);
+      res.json(parsedProducts);
     } catch (error) {
       console.error('Failed to fetch likes:', error);
       res.status(500).json({ error: 'Failed to fetch likes' });

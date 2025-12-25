@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, LogIn as LoginIcon } from "lucide-react";
+import { Loader2, LogIn as LoginIcon, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { useTelegram } from "@/lib/telegram";
@@ -88,6 +88,17 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center px-4 py-8">
+      <div className="absolute top-4 left-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/")}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Orqaga
+        </Button>
+      </div>
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center pb-4">
           <div className="flex justify-center mb-4">

@@ -135,8 +135,11 @@ export default function CatalogPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background pb-24">
-      <CustomerHeader title="Katalog" />
-
+      {/* Faqat CustomerHeader sticky top-0 */}
+      <div className="sticky top-0 z-50 bg-background">
+        <CustomerHeader title="Katalog" />
+      </div>
+      {/* Qolgan qismi oddiy, sticky emas */}
       {/* Search Bar */}
       <div className="px-4 py-3 border-b">
         <div className="relative">
@@ -150,9 +153,8 @@ export default function CatalogPage() {
           />
         </div>
       </div>
-
       {/* Categories */}
-      <div className="px-4 py-3 border-b">
+      <div className="px-4 py-3 border-b mb-4">
         <ScrollArea className="w-full whitespace-nowrap">
           <div className="flex gap-2">
             <Button
@@ -186,19 +188,19 @@ export default function CatalogPage() {
       {/* Products Grid */}
       <main className="flex-1 px-4 py-4">
         {productsLoading ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-5">
             {Array.from({ length: 6 }).map((_, i) => (
               <ProductSkeleton key={i} />
             ))}
           </div>
         ) : filteredProducts && filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-5">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="flex flex-col items-center justify-center py-16 text-center min-h-[300px] mt-8">
             <Package className="h-16 w-16 text-muted-foreground mb-4" />
             <h3 className="font-medium text-lg mb-1">Mahsulot topilmadi</h3>
             <p className="text-muted-foreground text-sm">

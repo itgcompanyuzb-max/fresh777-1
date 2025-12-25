@@ -712,6 +712,14 @@ bot.on('callback_query', async (query) => {
         paymentStatus: 'pending',
       });
 
+      console.log('✅ Order created from bot:', {
+        orderId: order.id,
+        customerId: customer.id,
+        total: total,
+        status: order.status,
+        deliveryAddress: session.tempAddress
+      });
+
       // Create order items
       for (const item of items) {
         await dbStorage.createOrderItem({

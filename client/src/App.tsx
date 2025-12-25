@@ -89,8 +89,8 @@ function App() {
     setVH();
     window.addEventListener('resize', setVH);
     
-    // Prevent default scroll behavior in Telegram
-    document.body.style.overflow = 'hidden';
+    // Allow scrolling for content
+    document.body.style.overflow = 'auto';
     document.body.style.touchAction = 'pan-x pan-y';
     
     return () => {

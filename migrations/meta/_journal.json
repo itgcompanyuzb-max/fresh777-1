@@ -8,6 +8,13 @@
       "when": 1766259161776,
       "tag": "0000_mean_elektra",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1766360444000,
+      "tag": "0001_add_banners",
+      "breakpoints": true
     }
   ]
 }

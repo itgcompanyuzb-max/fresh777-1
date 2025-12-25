@@ -274,7 +274,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <CustomerHeader title="Mahsulot" />
+      <CustomerHeader title="Mahsulot" hideActions={true} />
 
       {/* Image Carousel */}
       <ImageCarousel images={product.images && Array.isArray(product.images) ? product.images : []} />
